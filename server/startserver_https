@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# It needs cert.crt and cert.key files
+python manage.py runserver_plus 0.0.0.0:9877 --cert cert

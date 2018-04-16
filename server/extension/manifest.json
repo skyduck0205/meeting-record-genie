@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+  "name": "Record Pixie",
+  "version": "1",
+
+  "default_locale": "zh_TW",
+  "description": "A pixie to help you build a meeting record.",
+  "icons": { 
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png" 
+  },
+
+  "browser_action": {
+    "default_icon": {                    // optional
+      "19": "images/icon19.png",           // optional
+      "38": "images/icon38.png"            // optional
+    },
+    "default_title": "Record Pixie",      // optional; shown in tooltip
+    "default_popup": "popup.html"        // optional
+  },
+
+  "author": "Steven KimX5"
+}

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // Global Config
+    var CONFIG = {
+      HOST: 'http://localhost:9876',
+      HOST_HTTPS: 'https://localhost:9877',
+      DEFAULT_START_TIME: '08:15',
+      DEFAULT_END_TIME: '08:30',
+      DEFAULT_LOC0: 'OO園區',
+      DEFAULT_LOC1: 'OO辦公室',
+      TEAM: 'OO小組',
+      TEAM_MEMBERS: [
+        'Selina',
+        'Diane',
+        'Jack',
+        'Michael'
+      ],
+      MAIL_TO: 'group@mail.com',
+      MEMBERS: [
+        { tw:'約翰', en: 'John', mail: 'john@mail.com' },
+        { tw:'麥可', en: 'Michael', mail: 'michael@mail.com' },
+        { tw:'傑克', en: 'Jack', mail: 'jack@mail.com' },
+        { tw:'瑟琳娜', en: 'Selina', mail: 'selina@mail.com' },
+        { tw:'黛恩', en: 'Diane', mail: 'diane@mail.com' },
+        { tw:'蘿絲', en: 'Rose', mail: 'rose@mail.com' }
+      ]
+    };
+  </script>
+
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. -->
+
+  <style>
+    select, button, a, input[type=time], input[type=date], input[type=checkbox] {
+      cursor: pointer;
+    }
+    form input[type='text'], form input[type='date'] {
+      width: 100%;
+    }
+    .branding-below {
+      bottom: 56px;
+      top: 0;
+    }
+    .branding-text {
+      left: 7px;
+      position: relative;
+      top: 3px;
+    }
+    .row-contain {
+      overflow: hidden;
+    }
+    .form-group {
+      margin-bottom: 6px;
+    }
+    .form-group label {
+      font-weight: 900;
+    }
+    .tooltip-container {
+      position: relative;
+    }
+    #button-bar {
+      position: relative;
+    }
+    #loading {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      margin: auto 10px;
+      height: 20px;
+      width: auto;
+      opacity: 0;
+      transition: 0.5s ease all;
+    }
+    #loading.fadeIn {
+      opacity: 1;
+    }
+    #link-bar {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0px;
+      height: 0;
+      transition: 0.5s ease all;
+    }
+    #link-bar.open {
+      padding-bottom: 170px;
+    }
+    #link-bar a,
+    #link-hi a {
+      display: inline-block;
+      font-family: arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      height: 29px;
+      line-height: 27px;
+    }
+    #link-hi a {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar branding-below">
+
+    <div class="block form-group" id="link-hi">
+      <div>
+        <label>教學：</label>
+        <a href="https://github.com/skyduck0205/meeting-record-genie" target="_blank">如何使用早會小精靈</a>
+      </div>
+      <div>
+        <label>第一次使用：</label>
+        <a id="link-devil" class="error" target="_blank">來信任不安全的HTTPS連線吧！</a>
+      </div>
+      <div class="block">
+        <input type="checkbox" id="auto-open">
+        <label>打開文件自動啟動早會小精靈</label>
+      </div>
+    </div>
+
+    <form id="form">
+      <div class="block row-contain">
+        <div class="block form-group">
+          <label>標題</label>
+          <input type="text" id="record-title">
+        </div>
+        <div class="form-group">
+          <label>日期</label>
+          <input type="date" id="record-date">
+        </div>
+        <div class="form-group">
+          <label>時間</label>
+          <div>
+            <input type="time" id="record-start-time" style="display:inline;">
+            <span>至</span>
+            <input type="time" id="record-end-time" style="display:inline;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>記錄人</label>
+          <select id="record-recorder"></select>
+        </div>
+      </div>
+
+      <div class="block" id="button-bar">
+        <button class="blue" id="btn-submit">產生早會紀錄</button>
+        <img id="loading" src="https://ssl.gstatic.com/s2/oz/images/notifications/spinner_32_041dcfce66a2d43215abb96b38313ba0.gif" alt="loading">
+      </div>
+      <div class="block" id="link-bar">
+        <div><a id="pdf-link" target="_blank">下載PDF檔</a></div>
+        <div><a id="rst-link" target="_blank">下載RST檔</a></div>
+        <div><a id="justup-link" href="//justup.co/main.html" target="_blank">開啟雲盤</a></div>
+        <div><a id="mail-link" target="_blank">開啟信件編輯器</a></div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="sidebar bottom">
+    <span class="gray branding-text">@2016 Meeting Record Genie.</span>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.min.js"></script>
+  <script>
+    /* Main task flow */
+    var users = new UserList();
+
+    $(function() {
+      loadPreferences();
+      initInputValue(users);
+      registerEvents();
+    });
+
+    ////////
+
+    /* Load User preference from google script */
+    function loadPreferences() {
+      google.script.run
+        .withSuccessHandler(function(userPrefs) {
+          if (userPrefs.recorder) {
+            $('#record-recorder').val(userPrefs.recorder);
+          }
+          if (userPrefs.autoOpen) {
+            $('#auto-open').attr('checked', userPrefs.autoOpen === 'true');
+          }
+        })
+        .withFailureHandler(showError)
+        .getPreferences();
+    }
+
+    /* Initialize values of input DOMs */
+    function initInputValue(members) {
+      // Links
+      $('#link-devil').attr('href', CONFIG.HOST_HTTPS + '/hi');
+
+      // Inputs
+      var now = moment();
+      $('#record-title').val(CONFIG.TEAM + '早會紀錄_' + now.format('YYYYMMDD'));
+      $('#record-date').val(now.format('YYYY-MM-DD'));
+      $('#record-start-time').val(CONFIG.DEFAULT_START_TIME);
+      $('#record-end-time').val(CONFIG.DEFAULT_END_TIME);
+      for (var i = 0; i < users.subList.length; i++) {
+        var text = users.subList[i].tw + '(' + users.subList[i].en + ')';
+        $('#record-recorder').append($('<option>', { value:text, text:text }));
+      }
+    }
+
+    /* Register input events */
+    function registerEvents() {
+      // on date change
+      $('#record-date').change(function(){
+        var $this = $(this);
+        $('#record-title').val(CONFIG.TEAM + '早會紀錄_' + $this.val().replace(/-/g, ''));
+      });
+      // on auto open change
+      $('#auto-open').change(function() {
+        google.script.run.setPreferences({autoOpen: $(this).is(":checked")});
+      });
+      // on submit click
+      $('#btn-submit').click(onSubmitClick);
+    }
+
+    /* Submit button click event */
+    function onSubmitClick() {
+      // Update UI
+      this.disabled = true;
+      $('#link-bar').removeClass('open');
+      $('#loading').addClass('fadeIn');
+      $('#error').remove();
+
+      var date = $('#record-date').val();
+      var input = {
+        title: $('#record-title').val(),
+        date: date,
+        day: ['日', '一', '二', '三', '四', '五', '六'][moment(date).day()],
+        startTime: $('#record-start-time').val(),
+        endTime: $('#record-end-time').val(),
+        loc0: CONFIG.DEFAULT_LOC0,
+        loc1: CONFIG.DEFAULT_LOC1,
+        recorder: $('#record-recorder').val(),
+        userList: users.subList
+      }
+
+      // Submit record to google script and call record api when succeed
+      google.script.run
+        .withSuccessHandler(function(output, element) {
+          console.log('Parse doc succeed:', output);
+          // Call submit API
+          submitRst(output);
+        })
+        .withFailureHandler(function(msg, element) {
+          console.error('Parse doc failed.', msg);
+          showError(msg, $('#button-bar'));
+          element.disabled = false;
+        })
+        .withUserObject(this)
+        .submitRecord(input);
+    }
+
+    /* Call backend submit API */
+    function submitRst(data) {
+      $.ajax({
+        method: 'POST',
+        url: CONFIG.HOST + '/meetingrecord/new',
+        data: data
+      })
+      .done(function(res) {
+        // Update UI
+        $('#pdf-link').attr('href', CONFIG.HOST + '/pdf/' + res.pdf);
+        $('#pdf-link').attr('download', res.pdf);
+        $('#rst-link').attr('href', CONFIG.HOST + '/rst/' + res.rst);
+        $('#rst-link').attr('download', res.rst);
+
+        var mailBody = 'Dear all,\n'
+          + '連結為' + CONFIG.TEAM + '小組今日的早會會議紀錄，請參閱:\n'
+          + '<< ##### Your record link here. ##### >>\n'
+          + '內容如有需要修訂，請不吝告知，謝謝。\n\n'
+          + 'Best wishes,\n'
+          + $('#record-recorder').val().replace(/.*\(/, '').replace(/\).*/, '');
+        $('#mail-link').attr('href', 'https://mail.google.com/mail/u/0/?view=cm&ui=2&tf=0&fs=1'
+          + '&to=' + CONFIG.MAIL_TO
+          + '&su=' + CONFIG.TEAM + '小組早會會議紀錄_' + $('#record-date').val().replace(/-/g, '')
+          + '&body=' + encodeURIComponent(mailBody)
+        );
+
+        $('#link-bar').addClass('open');
+      })
+      .fail(function(jqXHR, textStatus) {
+        console.error('Submit ERROR:', jqXHR);
+        if (jqXHR.status === 0) {
+          showError('連線失敗，可能是 https 信任過期，試試點選 "第一次使用" 的連結。如果依舊無法使用，請聯絡 skyduck。', $('#button-bar'));
+        } else if (jqXHR.status === 400) {
+          showError('產生 pdf 時發生錯誤，可能是紀錄中含有特殊字元，請其字元移除後重新產生。', $('#button-bar'));
+        } else {
+          showError('伺服器壞了，請找 skyduck。', $('#button-bar'));
+        }
+      })
+      .always(function() {
+        $('#btn-submit').attr('disabled', false);
+        $('#loading').removeClass('fadeIn');
+      });
+    }
+
+    /* Inserts a div that contains an error message after a given element. */
+    function showError(msg, element) {
+      var div = $('<div id="error" class="error">' + msg + '</div>');
+      $(element).after(div);
+    }
+
+    /**
+     * User list object
+     * @constructor
+     */
+    function UserList() {
+      this.find = function(string, key) {
+        return CONFIG.MEMBERS.find(function(item) { return item[key || 'en'] === string; });
+      };
+
+      this.findByList = function(list, key) {
+        var filtered = [];
+        for (var i = 0; i < list.length; i++) {
+          var item = this.find(list[i], key);
+          if (item) {
+            filtered.push(item);
+          }
+        }
+        return filtered;
+      }
+
+      this.subList = this.findByList(CONFIG.TEAM_MEMBERS);
+    }
+  </script>
+</body>
+</html>
