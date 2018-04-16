@@ -8,21 +8,21 @@
 
 ![open add-on](https://i.imgur.com/nXjOYbf.jpg)
 
-1. Select date and recorder.
+2. Select date and recorder.
 
 ![add-on](https://i.imgur.com/RSaVZsp.jpg)
 
-1. Click '產生早會記錄' and links are created.
+3. Click '產生早會記錄' and links are created.
 
 ![file links](https://i.imgur.com/0WOc9Xn.jpg)
 
-1. Your meeting record pdf is ready.
+4. Your meeting record pdf is ready.
 
 ![pdf](https://i.imgur.com/qG0dQyg.jpg)
 
-1. Here's a mail template for you.
+5. Here's a mail template for you.
 
-![mail](https://i.imgur.com/ZyTAeTM.jpg)
+![mail](https://i.imgur.com/Z5sNSdl.jpg)
 
 ### Google Document Format
 Make sure you and your teammates follow the format to create the pdf correctly.
@@ -54,9 +54,7 @@ Jack 今天的預計 2。
 You could just add a new daily record above without deleting old ones. It helps genie to get old data whenever you need to re-generate previous meeting records.
 
 ### Installation
-
 Add `google-doc-add-on/Sidebar.html` and `google-doc-add-on/Code.gs` to Google document > 工具 > 指令碼編輯器.
-
 
 ### Configuration
 ```javascript
@@ -93,7 +91,6 @@ var CONFIG = {
 ## Server
 
 ### Dependencies
-
 Python 2.7
 [Django 1.6](https://www.djangoproject.com/)
 [django-extensions](https://github.com/django-extensions/django-extensions)
