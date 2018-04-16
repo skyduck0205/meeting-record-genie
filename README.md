@@ -5,18 +5,23 @@
 ### Usage (If add-on is already installed)
 
 1. Open add-on: Google document > 外掛程式 > Meeting Record Genie > start.
+
 ![open add-on](https://i.imgur.com/nXjOYbf.jpg)
 
 1. Select date and recorder.
+
 ![add-on](https://i.imgur.com/RSaVZsp.jpg)
 
 1. Click '產生早會記錄' and links are created.
+
 ![file links](https://i.imgur.com/0WOc9Xn.jpg)
 
 1. Your meeting record pdf is ready.
+
 ![pdf](https://i.imgur.com/qG0dQyg.jpg)
 
 1. Here's a mail template for you.
+
 ![mail](https://i.imgur.com/ZyTAeTM.jpg)
 
 ### Google Document Format
@@ -98,5 +103,5 @@ Run with `startserver.sh` in the `server/` folder. The development server should
 
 You could deploy django server on Apache or Nginx if needed.
 
-- It seems not necessary to use HTTPS certificate.
+- It seems not necessary to use HTTPS certification.
 - **WARNING:** The core part of building pdf from reStructuredText(rst) file is removed from this repository because it is not my contribution and might contain some classified information of the company.
