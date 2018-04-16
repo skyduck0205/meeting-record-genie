@@ -40,11 +40,11 @@ class LazyDoc(object):
             rst_build=self.RST_BUILD_PATH,
             rst_file=rst_filename
         )
-        # os.system(cmd)
+        os.system(cmd)
 
         if not os.path.isfile(pdf_file):
             print 'Build pdf file failed'
-            return 'None'
+            return None
         else:
             print 'Build pdf file done'
 
@@ -56,5 +56,5 @@ class LazyDoc(object):
             pdf_file=pdf_file,
             pdf_path=self.PDF_PATH
         )
-        # os.system(cmd)
+        os.system(cmd)
         return os.path.join(self.PDF_PATH, pdf_filename)
