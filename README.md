@@ -91,8 +91,8 @@ var CONFIG = {
 ## Server
 
 ### Dependencies
-Python 2.7
-[Django 1.6](https://www.djangoproject.com/)
+Python 2.7\
+[Django 1.6](https://www.djangoproject.com/)\
 [django-extensions](https://github.com/django-extensions/django-extensions)
 
 ### Usage
